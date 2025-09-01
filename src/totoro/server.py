@@ -22,15 +22,15 @@ def callback():
 def add_sudo_user(
     user: str = typer.Argument(..., help='User name'),
     group: str = typer.Argument(..., help='Group name'),
-    context: str = typer.Option('default', '--context', help='Docker context')
+    ctx: str = typer.Option('default', '--context', help='Docker context')
 ):
     """
     Create a new sudo user
     """
-    validate('context', context)
+    validate('context', ctx)
     sudo_user_password = getpass.getpass('Enter password for new user: ')
 
-    with Connection(host=hosts[context]) as c:
+    with Connection(host=hosts[ctx]) as c:
         c.sudo(f'groupadd -f {group}')
         c.sudo(f'adduser --disabled-password --gecos "" --ingroup {group} {user}')
         c.sudo(f'echo "{user}:{sudo_user_password}" | sudo chpasswd', pty=True)
@@ -43,16 +43,16 @@ def add_sudo_user(
 
 @app.command()
 def scp_setup_script(
-    context: str = typer.Option('default', '--context', help='Docker context'),
+    ctx: str = typer.Option('default', '--context', help='Docker context'),
 ):
     """
     Secure copy setup script to host. Refer to `server_setup_script` in settings.yaml
     """
-    validate('context', context)
+    validate('context', ctx)
     setup_script_path = server_setup_script['dir']
     setup_script_filename = server_setup_script['filename']
 
-    run([f"scp {setup_script_path}/{setup_script_filename} {hosts[context]}:."])
+    run([f"scp {setup_script_path}/{setup_script_filename} {hosts[ctx]}:."])
 
     typer.echo(
         typer.style(f'\nStart a SSH session to run the following command:\nsudo ./{setup_script_filename}\n',

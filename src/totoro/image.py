@@ -1,6 +1,6 @@
 import typer
 
-from totoro.utils import run, resolve_docker_tag
+from totoro.utils import run, resolve_docker_tag, resolve_docker_context
 from totoro.settings import load_settings
 from totoro.validations import validate
 
@@ -18,15 +18,15 @@ def callback():
 @app.command()
 def build(
     service: str = typer.Argument(..., help='Service to build'),
-    tag: str = typer.Argument(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch'),
+    tag: str = typer.Option(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch'),
     no_cache: bool = typer.Option(False, '--no-cache', help='Use cache')
 ):
     """
     Build docker image
     """
     validate('service', service)
-    if not tag:
-        tag = resolve_docker_tag()
+
+    tag = tag or resolve_docker_tag()
     run([
         'docker image build',
         f'-f dockerfiles/{service}/{service}.Dockerfile',
@@ -36,29 +36,32 @@ def build(
 
 @app.command()
 def push(
-    service: str = typer.Argument(...,help='Service to push'),
-    tag: str = typer.Argument(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch')
+    service: str = typer.Argument(..., help='Service to push'),
+    tag: str = typer.Option(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch')
 ):
     """
     Push image to container registry
     """
     validate('service', service)
-    if not tag:
-        tag = resolve_docker_tag()
+
+    tag = tag or resolve_docker_tag()
     run([f'docker push {repository}/{service}:{tag}'])
 
 @app.command()
 def pull(
     service: str = typer.Argument(..., help='Service to pull'),
-    tag: str = typer.Argument(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch'),
-    context: str = typer.Option('default', '--context', help='Docker context')
+    tag: str = typer.Option(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch'),
+    ctx: str = typer.Option(None, '--context', help='Docker context'),
+    local: bool = typer.Option(False, '--local', help='Local behaviour for connecting to Docker daemon')
 ):
     """
     Pull image from container registry
     """
-    validate('context', context)
-    if not tag:
-        tag = resolve_docker_tag()
+    validate('service', service)
+    if ctx: validate('context', ctx)
+
+    tag = tag or resolve_docker_tag()
+    ctx = ctx or resolve_docker_context(tag, local)
     run([
-        f'docker --context {context} pull {repository}/{service}:{tag}'
+        f'docker --context {ctx} pull {repository}/{service}:{tag}'
     ])

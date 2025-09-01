@@ -1,7 +1,7 @@
 from time import sleep
 import typer
 
-from totoro.utils import run
+from totoro.utils import run, resolve_docker_tag, resolve_docker_context, resolve_env_file
 from totoro.validations import validate
 
 
@@ -16,19 +16,18 @@ def callback():
 @app.command()
 def up(
     profile: str = typer.Argument(..., help='Compose profile'),
-    context: str = typer.Option('default', '--context', help='Docker context'),
-    daemon: bool = typer.Option(True, '--no-daemon', help='Daemon')
+    daemon: bool = typer.Option(True, '--no-daemon', help='Daemon'),
+    local: bool = typer.Option(False, '--local', help='Local behaviour for connecting to Docker daemon')
 ):
     """
     Docker compose up
-
-    TODO:
-    - Additional environment variables via inline assignment
     """
-    validate('context', context)
     validate('profile', profile)
+    tag = resolve_docker_tag()
+    ctx = resolve_docker_context(tag, local)
+    env_file = resolve_env_file(tag, local)
     run([
-        f'NGINX_TAG={context} ENV_FILE={env_file(context)} docker --context {context} compose',
+        f'IMAGE_TAG={tag} NGINX_TAG={ctx} ENV_FILE={env_file} docker --context {ctx} compose',
         f'--profile {profile} up',
         # '--scale certbot=0' if all([context == 'default' , profile == 'all']) else '',
         '-d' if daemon else '',
@@ -37,30 +36,13 @@ def up(
 @app.command()
 def down(
     profile: str = typer.Argument(..., help='Compose profile'),
-    context: str = typer.Option('default', '--context', help='Docker context')
+    local: bool = typer.Option(False, '--local', help='Local behaviour for connecting to Docker daemon')
 ):
     """
     Docker compose down
     """
-    validate('context', context)
     validate('profile', profile)
-    run([f'ENV_FILE={env_file(context)} docker --context {context} compose --profile {profile} down'])
-
-@app.command()
-def exec(
-    profile: str = typer.Argument(..., help='Compose profile'),
-    command: str = typer.Argument(..., help='Command to execute'),
-    context: str = typer.Option('default', '--context', help='Docker context')
-):
-    """
-    Docker compose exec
-    """
-    validate('context', context)
-    validate('profile', profile)
-    run([f'ENV_FILE={env_file(context)} docker --context {context} compose exec {profile} {command}'])
-
-def env_file(context: str):
-    return {
-        'default': '.env-dev',
-        'production': '.env-production',
-    }.get(context, '.env-staging')
+    tag = resolve_docker_tag()
+    ctx = resolve_docker_context(tag, local)
+    env_file = resolve_env_file(tag, local)
+    run([f'ENV_FILE={env_file} docker --context {ctx} compose --profile {profile} down'])
