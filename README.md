@@ -44,8 +44,23 @@ dbs:
 db_user: database-user-name
 
 hosts:
-  docker: docker.smardtportal
-  staging: staging.salesportal.smardt
+  staging: staging.server.com
+  staging2: staging2.server.com
+  production: salesportal.smardt.com
+
+deployment_targets:
+  local:
+    host: default
+    env_file: .envs/.env-dev
+  master:
+    host: production
+    env_file: .envs/.env-production
+  develop: &staging
+    host: staging
+    env_file: .envs/.env-staging
+  staging2:
+    <<: *staging
+    host: staging2
 
 spaces:
   region_name: sgp1
@@ -131,7 +146,6 @@ $ totoro compose --help
 ╭─ Commands ─────────────────────────────────────────────────────────────────────────────╮
 │ up     Docker compose up                                                               │
 │ down   Docker compose down                                                             │
-| exec   Docker compose exec                                                             |
 ╰────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 You can then run:
@@ -143,12 +157,12 @@ to get details on how to start services.
 ### Example Usages
 - Build and push a Docker image:
     ```
-    totoro image build web latest
-    totoro image push web latest
+    totoro image build web
+    totoro image push web
     ```
 - Deploy services using Docker Compose:
     ```
-    totoro compose up all --context staging
+    totoro compose up all
     ```
 ### Conventions
 Totoro relies heavily on conventions to ensure consistency. Users should adhere to the following assumptions for directory structures and file locations:
@@ -156,18 +170,42 @@ Totoro relies heavily on conventions to ensure consistency. Users should adhere 
 #### Dockerfiles
 Totoro assumes that Dockerfiles follow a structured directory naming convention. For example:
 ```
-totoro image build web latest
+totoro image build web
 ```
 This command expects the Dockerfile for the web service to be located at:
 ```
 ./dockerfiles/web/web.Dockerfile
 ```
-#### Hosts and Services
-The totoro.yaml file should define valid hosts and services, which are referenced in commands like:
+#### Hosts and Deployment Targets
+The totoro.yaml file should define valid hosts and deployment targets:
+
+```yaml
+hosts:
+  staging: staging.server.com
+  staging2: staging2.server.com
+  production: salesportal.smardt.com
+
+deployment_targets:
+  local:
+    host: default
+    env_file: .envs/.env-dev
+  master:
+    host: production
+    env_file: .envs/.env-production
+  develop: &staging
+    host: staging
+    env_file: .envs/.env-staging
+  staging2:
+    <<: *staging
+    host: staging2
 ```
-totoro compose up all --context staging
-```
-Here, staging must be defined under hosts and all under profiles in totoro.yaml. More info on Docker profiles [here](https://docs.docker.com/compose/how-tos/profiles/).
+- Hosts: Named server addresses used for deployment.
+- Deployment Targets: Map Git branch names to a host and environment file (env_file). Each target tells Totoro which server and settings to use when deploying a specific branch.
+- Hosts are reusable server definitions.
+- Deployment Targets link branches to a host and environment configuration.
+- The host field is used as the Docker context during deployment, while env_file sets branch-specific environment variables.
+
+More info on [Docker profiles](https://docs.docker.com/compose/how-tos/profiles/) and [Docker contexts](https://docs.docker.com/engine/manage-resources/contexts/).
 
 #### Plugins
 Totoro functionalities can be extended via plugins. Totoro automatically imports all of the modules in the directory specified in `plugins_dir_name` and mounts them via `app.add_typer(....)`.
