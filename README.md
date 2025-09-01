@@ -12,11 +12,11 @@ Totoro is a Python-based DevOps tool designed to streamline Docker-related comma
 Tested against Python (=>3.11.7):
 
 ```sh
-pip install git+https://github.com/kinoki-choy/totoro.git@v1.0.0
+pip install git+https://github.com/kinoki-choy/totoro.git@v1.1.0
 ```
 or if using UV:
 ```sh
-uv add git+https://github.com/kinoki-choy/totoro.git@v1.0.0
+uv add git+https://github.com/kinoki-choy/totoro.git@v1.1.0
 ```
 
 ### Configuration
