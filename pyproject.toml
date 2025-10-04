@@ -5,7 +5,7 @@ description = "Totoro, your dependable devops buddy"
 readme = "README.md"
 requires-python = ">=3.11.9"
 authors = [
-    { name = 'Kim Choy', email = 'kumjin.choy@gmail.com' }
+    { name = 'Kim Choy', email = 'kim@smardt.com' }
 ]
 dependencies = [
     "typer>=0.15.1",
