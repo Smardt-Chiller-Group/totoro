@@ -1,6 +1,6 @@
 [project]
 name = "totoro"
-version = "v1.1.0"
+version = "v1.2.0"
 description = "Totoro, your dependable devops buddy"
 readme = "README.md"
 requires-python = ">=3.11.9"
