@@ -27,6 +27,16 @@ def build(
     validate('service', service)
 
     tag = tag or resolve_docker_tag()
+    engine_branch = config.get('deployment_targets')[tag]['engine']
+
+    typer.echo(
+        typer.style(f'Fetch latest changes from `{engine_branch}` for chiller selection engine', dim=True, fg='green')
+    )
+
+    run([
+        f'cd smardt_portal/smardt_api/calculator && git switch {engine_branch} && git pull'
+    ], stdout=False)
+
     run([
         'docker image build',
         f'-f dockerfiles/{service}/{service}.Dockerfile',

@@ -177,7 +177,7 @@ This command expects the Dockerfile for the web service to be located at:
 ./dockerfiles/web/web.Dockerfile
 ```
 #### Hosts and Deployment Targets
-The totoro.yaml file should define valid hosts and deployment targets:
+The totoro.yaml file should define valid hosts and deployment targets as well as chiller selection API branch:
 
 ```yaml
 hosts:
@@ -188,12 +188,15 @@ hosts:
 deployment_targets:
   local:
     host: default
+    engine: master
     env_file: .envs/.env-dev
   master:
     host: production
+    engine: master
     env_file: .envs/.env-production
   develop: &staging
     host: staging
+    engine: master
     env_file: .envs/.env-staging
   staging2:
     <<: *staging
