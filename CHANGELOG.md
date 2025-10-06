@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 6th Oct, 2025
+### Changed
+- Clean up and removed confusing boolean parameters
+
 ## [1.2.0] - 5th Oct, 2025
 ### Added
 - `totoro.yaml` now accepts 'engine' parameter for identifying correct branch to use for chiller branch selection API.
