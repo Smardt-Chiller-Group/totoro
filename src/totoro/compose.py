@@ -16,16 +16,17 @@ def callback():
 @app.command()
 def up(
     profile: str = typer.Argument(..., help='Compose profile'),
-    daemon: bool = typer.Option(True, '--no-daemon', help='Daemon'),
-    local: bool = typer.Option(False, '--local', help='Local behaviour for connecting to Docker daemon')
+    daemon: bool = typer.Option(True, '--daemon/--no-daemon', help='Daemon'),
+    ctx: str = typer.Option(None, '--context', help='Docker context'),
 ):
     """
     Docker compose up
     """
     validate('profile', profile)
     tag = resolve_docker_tag()
-    ctx = resolve_docker_context(tag, local)
-    env_file = resolve_env_file(tag, local)
+    ctx = resolve_docker_context(tag, ctx=='default')
+    env_file = resolve_env_file(tag, ctx=='default')
+
     run([
         f'IMAGE_TAG={tag} NGINX_TAG={ctx} ENV_FILE={env_file} docker --context {ctx} compose',
         f'--profile {profile} up',
@@ -36,13 +37,13 @@ def up(
 @app.command()
 def down(
     profile: str = typer.Argument(..., help='Compose profile'),
-    local: bool = typer.Option(False, '--local', help='Local behaviour for connecting to Docker daemon')
+    ctx: str = typer.Option(None, '--context', help='Docker context'),
 ):
     """
     Docker compose down
     """
     validate('profile', profile)
     tag = resolve_docker_tag()
-    ctx = resolve_docker_context(tag, local)
-    env_file = resolve_env_file(tag, local)
+    ctx = resolve_docker_context(tag, ctx=='default')
+    env_file = resolve_env_file(tag, ctx=='default')
     run([f'ENV_FILE={env_file} docker --context {ctx} compose --profile {profile} down'])

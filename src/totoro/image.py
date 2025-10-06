@@ -19,7 +19,7 @@ def callback():
 def build(
     service: str = typer.Argument(..., help='Service to build'),
     tag: str = typer.Option(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch'),
-    no_cache: bool = typer.Option(False, '--no-cache', help='Use cache')
+    use_cache: bool = typer.Option(True, '--cache/--no-cache', help='Use cache')
 ):
     """
     Build docker image
@@ -27,21 +27,21 @@ def build(
     validate('service', service)
 
     tag = tag or resolve_docker_tag()
-    engine_branch = config.get('deployment_targets')[tag]['engine']
 
-    typer.echo(
-        typer.style(f'Fetch latest changes from `{engine_branch}` for chiller selection engine', dim=True, fg='green')
-    )
-
-    run([
-        f'cd smardt_portal/smardt_api/calculator && git switch {engine_branch} && git pull'
-    ], stdout=False)
+    if service == 'web':
+        engine_branch = config.get('deployment_targets')[tag]['engine']
+        typer.echo(
+            typer.style(f'Fetch latest changes from `{engine_branch}` for chiller selection engine', dim=True, fg='green')
+        )
+        run([
+            f'cd smardt_portal/smardt_api/calculator && git switch {engine_branch} && git pull'
+        ], stdout=False)
 
     run([
         'docker image build',
         f'-f dockerfiles/{service}/{service}.Dockerfile',
         f'-t {repository}/{service}:{tag} .',
-        '--no-cache' if no_cache else ''
+        '' if use_cache else '--no-cache'
     ])
 
 @app.command()
@@ -62,7 +62,6 @@ def pull(
     service: str = typer.Argument(..., help='Service to pull'),
     tag: str = typer.Option(None, help='Tag for Docker image. If omitted, it will be derived from the current Git branch'),
     ctx: str = typer.Option(None, '--context', help='Docker context'),
-    local: bool = typer.Option(False, '--local', help='Local behaviour for connecting to Docker daemon')
 ):
     """
     Pull image from container registry
@@ -71,7 +70,7 @@ def pull(
     if ctx: validate('context', ctx)
 
     tag = tag or resolve_docker_tag()
-    ctx = ctx or resolve_docker_context(tag, local)
+    ctx = ctx or resolve_docker_context(tag, ctx=='default')
     run([
         f'docker --context {ctx} pull {repository}/{service}:{tag}'
     ])
