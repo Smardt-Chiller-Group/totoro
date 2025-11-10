@@ -1,4 +1,3 @@
-import os
 import typer
 import logfire
 
@@ -14,11 +13,6 @@ from totoro.validations import validate
 app = typer.Typer()
 config = load_settings()
 repository = config.get('repository')
-logfire.configure(
-    service_name='totoro',
-    token=os.getenv('LOGFIRE_TOKEN'),
-    environment=os.getenv('LOGFIRE_ENVIRONMENT', 'production')
-)
 
 @app.callback()
 def callback():
