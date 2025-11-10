@@ -1,6 +1,12 @@
+import os
 import typer
+import logfire
 
-from totoro.utils import run, resolve_docker_tag, resolve_docker_context
+from totoro.utils import (
+    run,
+    resolve_docker_tag, resolve_docker_context,
+    get_commit_sha, get_git_author, get_image_digest
+)
 from totoro.settings import load_settings
 from totoro.validations import validate
 
@@ -8,6 +14,11 @@ from totoro.validations import validate
 app = typer.Typer()
 config = load_settings()
 repository = config.get('repository')
+logfire.configure(
+    service_name='totoro',
+    token=os.getenv('LOGFIRE_TOKEN'),
+    environment=os.getenv('LOGFIRE_ENVIRONMENT', 'production')
+)
 
 @app.callback()
 def callback():
@@ -37,12 +48,28 @@ def build(
             f'cd smardt_portal/smardt_api/calculator && git switch {engine_branch} && git pull'
         ], stdout=False)
 
-    run([
-        'docker image build',
-        f'-f dockerfiles/{service}/{service}.Dockerfile',
-        f'-t {repository}/{service}:{tag} .',
-        '' if use_cache else '--no-cache'
-    ])
+    git_author = get_git_author()
+    commit_sha = get_commit_sha()
+    build_command = [
+        'docker buildx build',
+        f'--label "AUTHOR={git_author}"',
+        f'--label "COMMIT={commit_sha}"',
+        f'--file dockerfiles/{service}/{service}.Dockerfile',
+        f'--tag {repository}/{service}:{tag}',
+        '--no-cache' if not use_cache else '',
+        '--push .',
+    ]
+
+    with logfire.span("Docker Build", attributes={"service": service, "tag": tag, "author": git_author}):
+        run(build_command)
+        digest = get_image_digest(service, tag)
+        # Assume success if we reach here
+        logfire.info(f'Built and pushed to ACR: {digest}', attributes={
+            'command': ' '.join(build_command).strip(),
+            'author': git_author,
+            'commit': commit_sha,
+            'digest': digest
+        })
 
 @app.command()
 def push(

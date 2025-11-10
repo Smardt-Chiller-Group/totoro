@@ -7,6 +7,18 @@ from totoro.settings import load_settings
 
 config = load_settings()
 
+def get_commit_sha() -> str:
+    return invoke.run('git rev-parse HEAD', hide=True).stdout.strip()
+
+def get_git_author() -> str:
+    return invoke.run('git config user.name', hide=True).stdout.strip()
+
+def get_image_digest(service: str, tag: str) -> str:
+    """
+    Get Docker image digest from ACR
+    """
+    return invoke.run(f"docker buildx imagetools inspect {config['repository']}/{service}:{tag} | grep '^Digest:' | awk '{{print $2}}'", hide=True).stdout.strip()
+
 def resolve_docker_tag() -> str:
     """
     Generate a Docker image tag based on current git branch.
