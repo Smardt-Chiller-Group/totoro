@@ -62,16 +62,19 @@ def build(
         '--push .',
     ]
 
-    with logfire.span("Docker Build", attributes={"service": service, "tag": tag, "author": git_author}):
+    with logfire.span(f'Docker Build: {service}:{tag}'):
         run(build_command)
         digest = get_image_digest(service, tag)
         # Assume success if we reach here
-        logfire.info(f'Built and pushed to ACR: {digest}', attributes={
-            'command': ' '.join(build_command).strip(),
-            'author': git_author,
-            'commit': commit_sha,
-            'digest': digest
-        })
+        logfire.info(
+            f'Built and pushed to ACR: {digest}',
+            tag=tag,
+            digest=digest,
+            service=service,
+            author=git_author,
+            commit=commit_sha,
+            command=' '.join(build_command).strip(),
+        )
 
 @app.command()
 def push(
