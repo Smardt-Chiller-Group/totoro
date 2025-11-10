@@ -57,7 +57,7 @@ def run(command: list, stdout=True):
     if stdout:
         typer.echo(
             typer.style(
-                formatted_command+'\n',
+                formatted_command,
                 dim=True,
                 fg='blue',
                 italic=True,
