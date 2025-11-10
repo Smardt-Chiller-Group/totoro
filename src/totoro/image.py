@@ -52,6 +52,8 @@ def build(
     commit_sha = get_commit_sha()
     build_command = [
         'docker buildx build',
+        '--provenance false',
+        '--sbom false',
         f'--label "AUTHOR={git_author}"',
         f'--label "COMMIT={commit_sha}"',
         f'--file dockerfiles/{service}/{service}.Dockerfile',
