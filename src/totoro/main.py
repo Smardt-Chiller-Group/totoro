@@ -1,7 +1,11 @@
+import os
 import sys
 import importlib
 from pathlib import Path
+
 import typer
+import logfire
+from logfire import ConsoleOptions
 
 from totoro.utils import run
 from totoro.settings import load_settings
@@ -10,6 +14,12 @@ from totoro import image, compose, server, spaces
 
 app = typer.Typer()
 config = load_settings()
+logfire.configure(
+    service_name='totoro',
+    token=os.getenv('LOGFIRE_TOKEN'),
+    environment=os.getenv('LOGFIRE_ENVIRONMENT', 'production'),
+    console=ConsoleOptions(show_project_link=False)
+)
 
 app.add_typer(image.app, name='image')
 app.add_typer(server.app, name='server')
