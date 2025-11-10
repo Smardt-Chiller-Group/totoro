@@ -64,6 +64,7 @@ def build(
             f'Built and pushed to ACR: {digest}',
             tag=tag,
             digest=digest,
+            action='build',
             service=service,
             author=git_author,
             commit=commit_sha,
