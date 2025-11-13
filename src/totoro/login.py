@@ -78,7 +78,6 @@ def login():
     
     # Extract ACR name from repository URL
     # repository format: smardtacrdev.azurecr.io/smardtportal
-    registry_url = '.'.join(repository.split('/')[-1].split('.')[:-1]) if '/' in repository else repository.split('/')[0]
     acr_name = repository.split('.')[0] if '.' in repository else None
     
     if not acr_name:
