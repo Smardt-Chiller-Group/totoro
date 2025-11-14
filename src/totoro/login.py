@@ -56,7 +56,7 @@ def is_acr_logged_in(registry: str) -> bool:
     """Check if Docker is logged in to ACR"""
     try:
         # Try to check docker credentials for the registry
-        result = invoke.run(f'docker login {registry} --username 00000000-0000-0000-0000-000000000000 --password-stdin < /dev/null 2>&1 | grep -q "unauthorized"', hide=True, warn=True)
+        invoke.run(f'docker login {registry} --username 00000000-0000-0000-0000-000000000000 --password-stdin < /dev/null 2>&1 | grep -q "unauthorized"', hide=True, warn=True)
         # Try az acr login which is idempotent
         result = invoke.run(f'az acr login --name {registry.split(".")[0]} --only-show-errors', hide=True, warn=True)
         return result.ok
