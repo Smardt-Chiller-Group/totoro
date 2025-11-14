@@ -5,7 +5,7 @@ import typer
 
 from totoro.utils import run
 from totoro.settings import load_settings
-from totoro import image, compose, server, spaces
+from totoro import image, compose, server, spaces, login
 
 
 app = typer.Typer()
@@ -15,6 +15,9 @@ app.add_typer(image.app, name='image')
 app.add_typer(server.app, name='server')
 app.add_typer(spaces.app, name='spaces')
 app.add_typer(compose.app, name='compose')
+
+# Register login as a top-level command (not under a subgroup)
+app.registered_commands.extend(login.app.registered_commands)
 
 @app.callback()
 def callback():
@@ -52,5 +55,3 @@ def load_plugins(dir_name:str):
             typer.echo(e)
 
 load_plugins(config.get('plugins_dir_name'))
-
-
