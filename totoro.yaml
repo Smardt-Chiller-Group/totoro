@@ -1,8 +1,10 @@
 repository: smardtacrdev.azurecr.io/smardtportal
+
 services:
 - db
 - web
 - nginx
+
 profiles:
 - all
 - db
@@ -11,16 +13,19 @@ profiles:
 - redis
 - nginx
 - celery
+
 dbs:
 - smardt_portal
 - smardt_cache
 db_user: smardt
+
 hosts:
   staging: staging.smardt.com
   staging2: staging2.smardt.com
   staging3: staging3.smardt.com
   salesforce: salesforce.smardt.com
   production: salesportal.smardt.com
+
 deployment_targets:
   local:
     host: default
@@ -42,6 +47,7 @@ deployment_targets:
     host: staging2
     engine: master
     env_file: .envs/.env-staging
+
 spaces:
   region_name: sgp1
   bucket: smardtportal
@@ -53,7 +59,9 @@ spaces:
   - files
   - translations
   downloads_dir: /home/smardt/downloads
+
 server_setup_script:
   dir: ./confs
   filename: setup.sh
+
 plugins_dir_name: totoro_plugins
