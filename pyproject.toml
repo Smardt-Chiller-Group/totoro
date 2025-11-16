@@ -15,6 +15,7 @@ dependencies = [
     "click>=8.1.8",
     "boto3>=1.29.3",
     "rich>=14.0.0",
+    "logfire>=4.14.2",
 ]
 
 [project.scripts]

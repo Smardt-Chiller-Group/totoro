@@ -1,6 +1,11 @@
 import typer
+import logfire
 
-from totoro.utils import run, resolve_docker_tag, resolve_docker_context
+from totoro.utils import (
+    run,
+    resolve_docker_tag, resolve_docker_context,
+    get_commit_sha, get_git_author, get_image_digest
+)
 from totoro.settings import load_settings
 from totoro.validations import validate
 
@@ -37,12 +42,34 @@ def build(
             f'cd smardt_portal/smardt_api/calculator && git switch {engine_branch} && git pull'
         ], stdout=False)
 
-    run([
-        'docker image build',
-        f'-f dockerfiles/{service}/{service}.Dockerfile',
-        f'-t {repository}/{service}:{tag} .',
-        '' if use_cache else '--no-cache'
-    ])
+    git_author = get_git_author()
+    commit_sha = get_commit_sha()
+    build_command = [
+        'docker buildx build',
+        '--provenance false',
+        '--sbom false',
+        f'--label "AUTHOR={git_author}"',
+        f'--label "COMMIT={commit_sha}"',
+        f'--file dockerfiles/{service}/{service}.Dockerfile',
+        f'--tag {repository}/{service}:{tag}',
+        '--no-cache' if not use_cache else '',
+        '--push .',
+    ]
+
+    with logfire.span(f'Docker Build: {service}:{tag}'):
+        run(build_command)
+        digest = get_image_digest(service, tag)
+        # Assume success if we reach here
+        logfire.info(
+            f'Built and pushed to ACR: {digest}',
+            tag=tag,
+            digest=digest,
+            action='build',
+            service=service,
+            author=git_author,
+            commit=commit_sha,
+            command=' '.join(build_command).strip(),
+        )
 
 @app.command()
 def push(
