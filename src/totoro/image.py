@@ -1,6 +1,6 @@
 import typer
 
-from totoro.utils import run, resolve_docker_tag, resolve_docker_context
+from totoro.utils import run, resolve_docker_tag, resolve_docker_context, check_dirty_build_policy
 from totoro.settings import load_settings
 from totoro.validations import validate
 
@@ -25,6 +25,8 @@ def build(
     Build docker image
     """
     validate('service', service)
+
+    check_dirty_build_policy()
 
     tag = tag or resolve_docker_tag()
 
