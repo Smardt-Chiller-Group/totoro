@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 21st May, 2026
+### Changed
+- `totoro build` now enforces branch-aware dirty build policies. Aborts immediately on uncommitted changes for `master`; prompts for confirmation on all other branches.
+
 ## [1.2.1] - 6th Oct, 2025
 ### Changed
 - Clean up and removed confusing boolean parameters
