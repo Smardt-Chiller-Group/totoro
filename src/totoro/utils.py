@@ -70,9 +70,7 @@ def get_deployment_target(tag: str) -> dict[str, str]:
     try:
         return config['deployment_targets'][tag]
     except KeyError as e:
-        raise typer.BadParameter(
-            f'No deployment target found for {e} in `totoro.yaml`'
-        )
+        raise typer.BadParameter(f'No deployment target found for {e} in `totoro.yaml`')
 
 def resolve_docker_context(tag: str) -> str:
     """Returns Docker context"""
