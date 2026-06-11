@@ -28,7 +28,7 @@ def up(
     env_file = resolve_env_file(tag)
 
     run([
-        f'IMAGE_TAG={tag} ENV_FILE={env_file} docker --context {ctx} compose',
+        f"IMAGE_TAG={tag} ENV_FILE={env_file} SERVER_NAME={config['hosts'][ctx]} docker --context {ctx} compose",
         f'--profile {profile} up',
         # '--scale certbot=0' if all([context == 'default' , profile == 'all']) else '',
         '-d' if daemon else '',
@@ -46,4 +46,4 @@ def down(
     ctx = resolve_docker_context(tag)
     env_file = resolve_env_file(tag)
 
-    run([f'ENV_FILE={env_file} docker --context {ctx} compose --profile {profile} down'])
+    run([f"ENV_FILE={env_file} SERVER_NAME={config['hosts'][ctx]} docker --context {ctx} compose --profile {profile} down"])
