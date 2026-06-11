@@ -72,7 +72,7 @@ def pull(
     if ctx: validate('context', ctx)
 
     tag = tag or resolve_docker_tag()
-    ctx = ctx or resolve_docker_context(tag, ctx=='default')
+    ctx = ctx or resolve_docker_context(tag)
     run([
         f'docker --context {ctx} pull {repository}/{service}:{tag}'
     ])
