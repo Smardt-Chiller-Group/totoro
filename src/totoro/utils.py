@@ -82,15 +82,14 @@ def resolve_env_file(tag: str) -> str:
     """Returns env file specified in a deployment target"""
     return get_deployment_target(tag)['env_file']
 
-def run(command: list, stdout=True):
-    formatted_command = ' '.join(command).strip()
+def run(command: str, stdout=True):
     if stdout:
         typer.echo(
             typer.style(
-                formatted_command+'\n',
+                command+'\n',
                 dim=True,
                 fg='blue',
                 italic=True,
             )
         )
-    return invoke.run(formatted_command, pty=True)
+    return invoke.run(command, warn=True, pty=True)

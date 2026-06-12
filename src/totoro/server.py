@@ -52,7 +52,7 @@ def scp_setup_script(
     setup_script_path = server_setup_script['dir']
     setup_script_filename = server_setup_script['filename']
 
-    run([f"scp {setup_script_path}/{setup_script_filename} {hosts[ctx]}:."])
+    run(f'scp {setup_script_path}/{setup_script_filename} {hosts[ctx]}:.')
 
     typer.echo(
         typer.style(f'\nStart a SSH session to run the following command:\nsudo ./{setup_script_filename}\n',

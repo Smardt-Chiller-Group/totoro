@@ -28,9 +28,7 @@ def init():
     Set up Docker contexts
     """
     for context, host in config.get('hosts').items():
-        run([
-            f'docker context create {context} --docker=host=ssh://{host}'
-        ])
+        run(f'docker context create {context} --docker=host=ssh://{host}')
 
 def load_plugins(dir_name:str):
     plugins_dir = Path.cwd() / dir_name
