@@ -35,16 +35,16 @@ def build(
         typer.echo(
             typer.style(f'Fetch latest changes from `{engine_branch}` for chiller selection engine', dim=True, fg='green')
         )
-        run([
-            f'cd smardt_portal/smardt_api/calculator && git switch {engine_branch} && git pull'
-        ], stdout=False)
+        run(
+            f'cd smardt_portal/smardt_api/calculator && git switch {engine_branch} && git pull',
+            stdout=False
+        )
 
-    run([
-        'docker image build',
-        f'-f dockerfiles/{service}/{service}.Dockerfile',
-        f'-t {repository}/{service}:{tag} .',
-        '' if use_cache else '--no-cache'
-    ])
+    run(
+        'docker image build '
+        f'-f dockerfiles/{service}/{service}.Dockerfile -t {repository}/{service}:{tag} . '
+        f"{'' if use_cache else '--no-cache'}"
+    )
 
 @app.command()
 def push(
@@ -57,7 +57,7 @@ def push(
     validate('service', service)
 
     tag = tag or resolve_docker_tag()
-    run([f'docker push {repository}/{service}:{tag}'])
+    run(f'docker push {repository}/{service}:{tag}')
 
 @app.command()
 def pull(
@@ -72,7 +72,5 @@ def pull(
     if ctx: validate('context', ctx)
 
     tag = tag or resolve_docker_tag()
-    ctx = ctx or resolve_docker_context(tag, ctx=='default')
-    run([
-        f'docker --context {ctx} pull {repository}/{service}:{tag}'
-    ])
+    ctx = ctx or resolve_docker_context(tag)
+    run(f'docker --context {ctx} pull {repository}/{service}:{tag}')

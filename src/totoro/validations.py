@@ -10,7 +10,7 @@ def validate(field: str, value: str):
         case 'db':
             valid_options = config.get('dbs')
         case 'context':
-            valid_options = [k for k,v in config.get('hosts').items()] + ['default']
+            valid_options = [k for k,v in config.get('hosts').items()]
         case 'service':
             valid_options = config.get('services')
         case 'profile':
