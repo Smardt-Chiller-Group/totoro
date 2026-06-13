@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 13th Jun, 2026
+### Added
+- `default` is now a valid host context in `totoro.yaml`
+- New `get_deployment_target` method for centralised host lookup
+
+### Changed
+- `resolve_docker_context` and `resolve_env_file` now delegate to `get_deployment_target`
+- Context switching via CLI flags (e.g. `--context`) is removed; `deployment_target` in `totoro.yaml` is now the only mechanism
+- Compose commands now inject `SERVER_NAME` as an environment variable
+- `utils.run()` now accepts a command as a string instead of a list
+
 ## [1.2.2] - 21st May, 2026
 ### Changed
 - `totoro build` now enforces branch-aware dirty build policies. Aborts immediately on uncommitted changes for `master`; prompts for confirmation on all other branches.
