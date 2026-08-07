@@ -5,7 +5,7 @@ import typer
 
 from totoro.utils import run
 from totoro.settings import load_settings
-from totoro import image, compose, server, spaces
+from totoro import image, compose, server, spaces, blob
 
 
 app = typer.Typer()
@@ -14,6 +14,7 @@ config = load_settings()
 app.add_typer(image.app, name='image')
 app.add_typer(server.app, name='server')
 app.add_typer(spaces.app, name='spaces')
+app.add_typer(blob.app, name='blob')
 app.add_typer(compose.app, name='compose')
 
 @app.callback()
