@@ -6,7 +6,7 @@ import click
 import typer
 from azure.storage.blob import BlobServiceClient
 from azure.identity import DefaultAzureCredential
-from azure.core.exceptions import ResourceExistsError
+from azure.core.exceptions import ResourceExistsError, ResourceNotFoundError
 
 from totoro.validations import validate
 from totoro.settings import load_settings
@@ -35,7 +35,7 @@ def get_backups(resource: str, limit: int = 15) -> list:
 @app.callback()
 def callback():
     """
-    Download database, translations & files backups from Spaces Object Storage
+    Download database, translations & files backups from Azure Blob Storage
     """
 
 @app.command(name='list')
@@ -57,6 +57,7 @@ def upload(
     resource: str = typer.Argument(..., help='Resource type'),
     filepath: str = typer.Argument(..., help='File path'),
 ):
+    """Upload resource"""
     filename = os.path.basename(filepath)
     file_size = os.path.getsize(filepath)
     file_size_in_mb = round(file_size / (1024 ** 2), 2)
@@ -81,9 +82,8 @@ def upload(
                 res = blob_client.upload_blob(file, overwrite=False, progress_hook=progress_hook)
         except ResourceExistsError:
             typer.echo('\n')
-            typer.secho(f'✖ Upload failed: {blob_client.url} already exists', fg='red', err=True)
+            typer.secho(f'✖ Upload failed: {blob_client.url} already exists', dim=True, fg='red', err=True)
             raise typer.Exit(code=1)
-
 
     etag = res['etag'].strip('"')
 
@@ -97,25 +97,35 @@ def download(
     resource: str = typer.Argument(..., help='Resource type'),
     filename: str = typer.Argument(..., help='File name'),
 ):
-    """
-    Download resource
-    """
+    """Download resource"""
     validate('resource', resource)
-    object_key = f"{spaces['prefix']}/{resource}/{filename}"
-    object_length = client().head_object(
-        Bucket=spaces['bucket'],
-        Key=object_key
-    )['ContentLength']
-    object_size_in_mb = round(object_length/(1024 ** 2), 2)
 
-    typer.echo(
-        typer.style(f'Downloading resource: {resource}/{filename} ({object_size_in_mb}MB)', dim=True, fg='green')
-    )
+    container = client().get_container_client(blob_config['container'])
+
+    try:
+        blob_client = container.get_blob_client(f"{blob_config['prefix']}/{resource}/{filename}")
+        object_length = blob_client.get_blob_properties().size
+        object_size_in_mb = round(object_length / (1024 ** 2), 2)
+    except ResourceNotFoundError:
+        typer.secho(f'✖ Download failed: {blob_client.url} does not exists', dim=True, fg='red', err=True)
+        raise typer.Exit(code=1)
+
+    typer.secho(f'Downloading resource: {resource}/{filename} ({object_size_in_mb}MB)', dim=True, fg='green')
 
     with click.progressbar(length=object_length, empty_char='░', fill_char='▓') as progress_bar:
-        client().download_file(
-            spaces['bucket'],
-            object_key,
-            f"{config.get('spaces')['downloads_dir']}/{filename}",
-            Callback=progress_bar.update
-        )
+        last_seen = 0
+
+        def progress_hook(current, total):
+            nonlocal last_seen
+            progress_bar.update(current - last_seen)
+            last_seen = current
+
+        download_path = f"{blob_config['downloads_dir']}/{filename}"
+
+        with open(download_path, 'wb') as file:
+            stream = blob_client.download_blob(progress_hook=progress_hook)
+            stream.readinto(file)
+
+    typer.echo('')
+    typer.secho('✔ Download complete', dim=True, fg='green', bold=True)
+    typer.secho(f'Location: {download_path}', dim=True, fg='white')
