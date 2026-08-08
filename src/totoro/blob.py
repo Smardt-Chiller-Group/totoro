@@ -88,7 +88,7 @@ def upload(
     etag = res['etag'].strip('"')
 
     typer.echo('')
-    typer.secho('✔ Upload complete', dim=True, fg='green', bold=True)
+    typer.secho('✔ Upload complete', dim=True, fg='green')
     typer.secho(f'URL: {blob_client.url}', dim=True, fg='white')
     typer.secho(f"ETag: {etag}\nLast modified: {res['last_modified']}", dim=True, fg='white')
 
@@ -127,5 +127,5 @@ def download(
             stream.readinto(file)
 
     typer.echo('')
-    typer.secho('✔ Download complete', dim=True, fg='green', bold=True)
+    typer.secho('✔ Download complete', dim=True, fg='green')
     typer.secho(f'Location: {download_path}', dim=True, fg='white')
