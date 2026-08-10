@@ -65,6 +65,11 @@ def upload(
     container = client().get_container_client(blob_config['container'])
     blob_client = container.get_blob_client(f"{blob_config['prefix']}/{resource}/{filename}")
 
+    if blob_client.exists():
+        typer.echo('\n')
+        typer.secho(f'✖ Upload failed: {blob_client.url} already exists', dim=True, fg='red', err=True)
+        raise typer.Exit(code=1)
+
     typer.secho(f'Uploading resource: {resource}/{filename} ({file_size_in_mb}MB)', dim=True, fg='green')
 
     with click.progressbar(length=file_size, empty_char='░', fill_char='▓') as progress_bar:
@@ -107,7 +112,7 @@ def download(
         object_length = blob_client.get_blob_properties().size
         object_size_in_mb = round(object_length / (1024 ** 2), 2)
     except ResourceNotFoundError:
-        typer.secho(f'✖ Download failed: {blob_client.url} does not exists', dim=True, fg='red', err=True)
+        typer.secho(f'✖ Download failed: {blob_client.url} does not exist', dim=True, fg='red', err=True)
         raise typer.Exit(code=1)
 
     typer.secho(f'Downloading resource: {resource}/{filename} ({object_size_in_mb}MB)', dim=True, fg='green')
