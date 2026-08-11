@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 11th Aug, 2026
+### Added
+- New `totoro blob` command group for interacting with Azure Blob Storage: `list`, `upload`, and `download` subcommands, mirroring the existing `totoro spaces` interface
+- `abort_blob_exists` shared utility in `totoro.utils` for consistent "already exists" error handling across upload flows
+
 ## [1.3.2] - 13th Jun, 2026
 ### Added
 - `default` is now a valid host context in `totoro.yaml`
