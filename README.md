@@ -5,18 +5,18 @@ Totoro is a Python-based DevOps tool designed to streamline Docker-related comma
 ### Features
 - Docker image management
 - Server configuration management
-- Download database, translations & files backups from Spaces Object Storage
+- Download database, translations & files backups from **Azure Blob Storage**
 - Container orchestration
 
 ### Installation
 Tested against Python (=>3.11.7):
 
 ```sh
-pip install git+https://github.com/kinoki-choy/totoro.git@v1.1.0
+pip install git+https://github.com/kinoki-choy/totoro.git@v1.4.0
 ```
 or if using UV:
 ```sh
-uv add git+https://github.com/kinoki-choy/totoro.git@v1.1.0
+uv add git+https://github.com/kinoki-choy/totoro.git@v1.4.0
 ```
 
 ### Configuration
@@ -62,14 +62,11 @@ deployment_targets:
     <<: *staging
     host: staging2
 
-spaces:
-  region_name: sgp1
-  bucket: bucket_name
-  endpoint_url: https://s3.ap-southeast-1.amazonaws.com
+blob:
+  region_name: eastasia
+  container: container_name
+  endpoint_url: https://xxx.blob.core.windows.net/
   prefix: backups
-  # start_after is where you want S3 to start listing from.
-  # S3 starts listing after this specified key. start_after can be any key in the bucket.
-  start_after: bucket_name/db/db_2025-01-01_08-00-00.sql
   resources:
     - db
     - files
@@ -115,7 +112,7 @@ $ totoro --help
 | init      Set up Docker contexts                                                        |
 │ image     Docker image management                                                       │
 │ server    Server configuration management                                               │
-│ spaces    Download database, translations & files backups from Spaces Object Storage    │
+│ blob      Download database, translations & files backups from Azure Blob Storage       │
 │ compose   Container orchestration                                                       │
 ╰─────────────────────────────────────────────────────────────────────────────────────────╯
 ```
