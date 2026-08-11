@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - New `totoro blob` command group for interacting with Azure Blob Storage: `list`, `upload`, and `download` subcommands, mirroring the existing `totoro spaces` interface
 - `abort_blob_exists` shared utility in `totoro.utils` for consistent "already exists" error handling across upload flows
+- `progress_bar` context manager in `totoro.utils` for shared progress-bar tracking across upload/download commands
 
 ## [1.3.2] - 13th Jun, 2026
 ### Added
