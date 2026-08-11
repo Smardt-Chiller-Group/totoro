@@ -10,6 +10,7 @@ from azure.core.exceptions import ResourceExistsError, ResourceNotFoundError
 
 from totoro.validations import validate
 from totoro.settings import load_settings
+from totoro.utils import abort_blob_exists
 
 
 app = typer.Typer()
@@ -66,9 +67,7 @@ def upload(
     blob_client = container.get_blob_client(f"{blob_config['prefix']}/{resource}/{filename}")
 
     if blob_client.exists():
-        typer.echo('\n')
-        typer.secho(f'✖ Upload failed: {blob_client.url} already exists', dim=True, fg='red', err=True)
-        raise typer.Exit(code=1)
+        abort_blob_exists(blob_client.url)
 
     typer.secho(f'Uploading resource: {resource}/{filename} ({file_size_in_mb}MB)', dim=True, fg='green')
 
@@ -82,13 +81,12 @@ def upload(
 
         try:
             with open(filepath, 'rb') as file:
-                # filenames are timestamped, explictly setting overwrite to false to
+                # filenames are timestamped, explictly setting overwrite=false to
                 # guards against accidental overwriting
                 res = blob_client.upload_blob(file, overwrite=False, progress_hook=progress_hook)
         except ResourceExistsError:
             typer.echo('\n')
-            typer.secho(f'✖ Upload failed: {blob_client.url} already exists', dim=True, fg='red', err=True)
-            raise typer.Exit(code=1)
+            abort_blob_exists(blob_client.url)
 
     etag = res['etag'].strip('"')
 
