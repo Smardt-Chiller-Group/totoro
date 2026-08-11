@@ -1,3 +1,5 @@
+from typing import NoReturn
+
 import typer
 import invoke, subprocess
 
@@ -7,6 +9,10 @@ from totoro.settings import load_settings
 
 config = load_settings()
 
+def abort_blob_exists(url: str) -> NoReturn:
+    typer.secho('✖ Upload failed', dim=True, fg='red', err=True)
+    typer.secho(f'Destination already exists: {url}', dim=True, fg='white')
+    raise typer.Exit(code=1)
 
 def check_dirty_build_policy():
     """
