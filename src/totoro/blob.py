@@ -1,6 +1,4 @@
 import os
-import time
-from datetime import datetime
 
 import click
 import typer
@@ -10,7 +8,7 @@ from azure.core.exceptions import ResourceExistsError, ResourceNotFoundError
 
 from totoro.validations import validate
 from totoro.settings import load_settings
-from totoro.utils import abort_blob_exists
+from totoro.utils import abort_blob_exists, progress_bar
 
 
 app = typer.Typer()
@@ -71,14 +69,7 @@ def upload(
 
     typer.secho(f'Uploading resource: {resource}/{filename} ({file_size_in_mb}MB)', dim=True, fg='green')
 
-    with click.progressbar(length=file_size, empty_char='░', fill_char='▓') as progress_bar:
-        last_seen = 0
-
-        def progress_hook(current, total):
-            nonlocal last_seen
-            progress_bar.update(current - last_seen)
-            last_seen = current
-
+    with progress_bar(file_size) as progress_hook:
         try:
             with open(filepath, 'rb') as file:
                 # filenames are timestamped, explictly setting overwrite=false to
@@ -115,16 +106,8 @@ def download(
 
     typer.secho(f'Downloading resource: {resource}/{filename} ({object_size_in_mb}MB)', dim=True, fg='green')
 
-    with click.progressbar(length=object_length, empty_char='░', fill_char='▓') as progress_bar:
-        last_seen = 0
-
-        def progress_hook(current, total):
-            nonlocal last_seen
-            progress_bar.update(current - last_seen)
-            last_seen = current
-
+    with progress_bar(object_length) as progress_hook:
         download_path = f"{blob_config['downloads_dir']}/{filename}"
-
         with open(download_path, 'wb') as file:
             stream = blob_client.download_blob(progress_hook=progress_hook)
             stream.readinto(file)

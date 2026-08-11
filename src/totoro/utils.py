@@ -1,5 +1,7 @@
 from typing import NoReturn
+from contextlib import contextmanager
 
+import click
 import typer
 import invoke, subprocess
 
@@ -8,6 +10,19 @@ from totoro.settings import load_settings
 
 
 config = load_settings()
+
+@contextmanager
+def progress_bar(length: int):
+    """Yields a progress_hook(current, total) callback wired to a click progressbar."""
+    with click.progressbar(length=length, empty_char='░', fill_char='▓') as bar:
+        last_seen = 0
+
+        def hook(current, total):
+            nonlocal last_seen
+            bar.update(current - last_seen)
+            last_seen = current
+
+        yield hook
 
 def abort_blob_exists(url: str) -> NoReturn:
     typer.secho('✖ Upload failed', dim=True, fg='red', err=True)
