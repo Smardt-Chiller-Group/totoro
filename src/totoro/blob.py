@@ -132,3 +132,4 @@ def download(
     typer.echo('')
     typer.secho('✔ Download complete', dim=True, fg='green')
     typer.secho(f'Location: {download_path}', dim=True, fg='white')
+    typer.echo('')
