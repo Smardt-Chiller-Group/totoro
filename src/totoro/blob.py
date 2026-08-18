@@ -27,7 +27,7 @@ def get_backups(resource: str, limit: int = 15) -> list:
     container = client().get_container_client(blob_config['container'])
     blobs = sorted(
         container.list_blobs(name_starts_with=f"{blob_config['prefix']}/{resource}"),
-        key=lambda b: b.creation_time, reverse=True
+        key=lambda b: b.name, reverse=True
     )[:limit]
     return [os.path.basename(b.name) for b in blobs]
 
