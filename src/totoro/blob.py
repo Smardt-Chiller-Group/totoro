@@ -1,6 +1,6 @@
 import os
+import logging
 
-import click
 import typer
 from azure.storage.blob import BlobServiceClient
 from azure.identity import DefaultAzureCredential
@@ -10,6 +10,7 @@ from totoro.validations import validate
 from totoro.settings import load_settings
 from totoro.utils import abort_blob_exists, progress_bar
 
+logging.getLogger('azure').setLevel(logging.WARNING)
 
 app = typer.Typer()
 config = load_settings()
