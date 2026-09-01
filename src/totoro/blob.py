@@ -75,7 +75,12 @@ def upload(
             with open(filepath, 'rb') as file:
                 # filenames are timestamped, explictly setting overwrite=false to
                 # guards against accidental overwriting
-                res = blob_client.upload_blob(file, overwrite=False, progress_hook=progress_hook)
+                res = blob_client.upload_blob(
+                    file,
+                    overwrite=False,
+                    max_concurrency=6,
+                    progress_hook=progress_hook
+                )
         except ResourceExistsError:
             typer.echo('\n')
             abort_blob_exists(blob_client.url)
@@ -110,7 +115,10 @@ def download(
     with progress_bar(object_length) as progress_hook:
         download_path = f"{blob_config['downloads_dir']}/{filename}"
         with open(download_path, 'wb') as file:
-            stream = blob_client.download_blob(progress_hook=progress_hook)
+            stream = blob_client.download_blob(
+                max_concurrency=6,
+                progress_hook=progress_hook
+            )
             stream.readinto(file)
 
     typer.echo('')
