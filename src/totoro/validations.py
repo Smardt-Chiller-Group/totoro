@@ -16,8 +16,8 @@ def validate(field: str, value: str):
         case 'profile':
             valid_options = config.get('profiles')
         case 'resource':
-            spaces = config.get('spaces')
-            valid_options = spaces.get('resources')
+            blob = config.get('blob')
+            valid_options = blob.get('resources')
         case _:
             raise ValueError(f'Unknown field: {field}')
 

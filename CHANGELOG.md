@@ -1,6 +1,9 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [2.0.0] - 30th Sept, 2026
+### Removed
+- **BREAKING:** `totoro spaces` command group has been removed. Use `totoro blob` instead, e.g. `totoro blob download db <db-file-name>`.
 
 ## [1.4.0] - 11th Aug, 2026
 ### Added
